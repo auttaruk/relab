@@ -1,0 +1,72 @@
+มีครับ และรอบนี้ผมเจอของที่ “ตรงเรื่อง” กว่ารอบก่อนเยอะ โดยเฉพาะ Arbitrage/Correlation กับ Demand-Supply แบบไม่ใช่แค่วาดโซน
+
+สำหรับ FT420 ผมคัดได้ประมาณนี้:
+
+Correlation / Cross-Asset / Residual FX: shreyasbs31/fx-statistical-arbitrage น่าสนใจมาก เพราะไม่ได้ใช้ correlation แบบง่าย ๆ แต่ใช้ PCA ตัด common USD factor แล้วเทรด residual relative movement บน FX หลายคู่ เหมาะกับการแตกเป็น factor_residual_lab, correlation_lab, lead_lag_lab ได้ตรง ๆ
+Pairs / Cointegration / Stat Arb: mo-479/statarb-pairs-trading-2 ใช้ Engle-Granger, ADF, half-life, Kalman dynamic hedge ratio และ walk-forward OOS แบบ no-lookahead ถือว่าเหมาะมากสำหรับห้อง Arbitrage Lab ของเรา
+Reproducible Stat-Arb Research: maddoxk/quant-statarb-research มี code + tests + paper + bundled data + transaction cost + lagged position/no-lookahead และทำ sensitivity grid ด้วย อันนี้เหมาะใช้เป็น reference ของมาตรฐานงานวิจัยใน Lab มาก
+Forex cointegration โดยตรง: MichaelSoegaard/Cointegration_in_trading เป็น proof/research สำหรับ cointegration spread trading บน Forex โดยตรง ใช้เป็น reference ด้านแนวคิดได้ แต่ไม่ได้อ้างว่า edge สูงมาก ซึ่งผมชอบตรงที่ไม่ขายฝัน
+ตัวอย่างสิ่งที่ต้องระวัง: VermeirJellen/AlgorithmicTrading-Cointegration ระบุเองว่าผล demo มี severe lookahead bias เพราะใช้ in-sample data อันนี้ดีมากสำหรับเอาเข้า known_leakage_patterns.json ของเรา
+
+ส่วน Demand / Supply แบบ quant ไม่ใช่วาดกล่อง ผมเจอตัวที่น่าสนใจจริง:
+
+mikedconcepcion/momentumfx-research เป็นงาน empirical study เรื่อง supply-demand/order-block formation บนข้อมูล 2020–2025 ราว 2.4 ล้านแท่ง มี XAUUSD/EURUSD/USDJPY ฯลฯ และมี code แยก zone detection + validation scripts ไม่ใช่แค่ Pine วาดโซนอย่างเดียว Repo รายงานว่าทดสอบช่วงเวลาการเกิด zone และมีผลเชิงสถิติ แต่ตัวเลขทั้งหมดควร reproduce เองก่อนเชื่อ
+ReekenX/forex-backtester มี strategy 5-minute Order Block + 1-minute confirmation และ 15-minute leg structure + 1-minute confirmation บน EURUSD ใช้เป็น reference สำหรับ “zone → confirmation → execution” ได้ดี
+Suman903/smc-backtester มี BOS/CHoCH/order block logic, multi-timeframe confluence และ backtest เปรียบเทียบกับ MA baseline เหมาะสำหรับแยก structure, order_block, zone_quality ออกจากกัน
+nieledran/backtesting-engine มี implementation order block ที่ค่อนข้าง quant ชัด: sweep local low/high + strong impulse threshold ด้วย ATR และระบุชัดว่าทำงานบน fully closed bars เพื่อกัน look-ahead อันนี้ผมชอบมากสำหรับเอา logic ไปศึกษา
+tuomaslaukala/ICT-Strategy-Backtest สำคัญในอีกมุม เพราะเจ้าของทำ XAUUSD tick-data test เพื่อ “พิสูจน์ว่าบาง ICT logic อาจไม่มี reliable edge” มี OrderBlocks, FVG, Liquidity, Structure, Sweeps แยก module ชัด เหมาะมากสำหรับ Lab เพราะเราต้องมี repo ที่ช่วย ฆ่า hypothesis ไม่ใช่มีแต่ repo ที่บอกว่ากำไร
+
+ถ้าผมเลือก Repo Intake รอบต่อไป 6 ตัว สำหรับ Prompt หลังจาก Lab Core/Skill System เสร็จ ผมจะเลือก:
+
+CORRELATION / STAT ARB
+1. fx-statistical-arbitrage
+2. statarb-pairs-trading-2
+3. quant-statarb-research
+
+DEMAND / SUPPLY
+4. momentumfx-research
+5. smc-backtester
+6. ICT-Strategy-Backtest
+
+แล้วแตกเป็นห้องใหม่แบบนี้:
+
+skills/
+├── correlation_lab/
+├── factor_residual_lab/
+├── cointegration_lab/
+├── kalman_spread_lab/
+├── stat_arb_lab/
+│
+├── supply_demand_lab/
+├── order_block_detector/
+├── displacement_lab/
+├── zone_quality_lab/
+├── zone_retest_lab/
+└── liquidity_context_lab/
+
+โดยเฉพาะ Demand/Supply ผมจะกำหนดหลักตั้งแต่ต้นเลยว่า:
+
+ห้าม:
+"แท่งนี้ดูเหมือน demand"
+"ตรงนี้น่าจะ order block"
+
+ต้องแปลงเป็นตัวเลข เช่น:
+
+base_duration
+zone_width_atr
+departure_atr
+departure_velocity
+imbalance_ratio
+sweep_before_departure
+freshness_bars
+retest_count
+penetration_ratio
+reaction_mfe
+reaction_mae
+time_to_retest
+
+แล้วค่อยถามว่า:
+
+“zone แบบไหนมี expectancy หลัง cost จริง?”
+
+แบบนี้จะเป็น Quant Supply/Demand Lab จริง ไม่ใช่ indicator วาดกรอบครับ.

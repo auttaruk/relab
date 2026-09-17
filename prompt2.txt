@@ -1,0 +1,1257 @@
+คุณกำลังเข้าสู่ PHASE 12 — FT420 LAB SKILL SYSTEM
+
+เป้าหมาย:
+เปลี่ยนความสามารถของ FT420 Quant Research Lab
+ให้เป็นระบบ Skill ที่ Agent แต่ละตัวเรียกใช้ซ้ำได้
+
+ทุก Skill ต้องเป็น:
+
+มี Input ชัดเจน
+
+มี Output ชัดเจน
+
+มี Validation
+
+มี Failure Conditions
+
+มี Definition of Done
+
+มี Tests
+
+เรียกใช้งานซ้ำได้
+
+ไม่ผูกติดกับ strategy ตัวใดตัวหนึ่ง
+
+สร้าง:
+
+skills/
+├── repo_intake/
+├── data_audit/
+├── strategy_extract/
+├── baseline_builder/
+├── feature_factory/
+├── regime_lab/
+├── ml_lab/
+├── timeseries_benchmark/
+├── qlib_adapter/
+├── experiment_runner/
+├── walk_forward/
+├── stress_test/
+├── ablation/
+├── forensic_analysis/
+├── candidate_ranker/
+├── strategy_promoter/
+└── rl_experimental/
+
+ทุก folder ต้องมี:
+
+SKILL.md
+schema.yaml
+examples/
+tests/
+
+ชื่อ:
+Repo Intake & Research Extraction
+
+จุดประสงค์:
+รับ GitHub repo หรือ research project
+แล้ววิเคราะห์ว่าอะไรควรนำมาใช้กับ FT420
+
+Input:
+
+repo_url
+
+optional branch/tag/commit
+
+research objective
+
+Output:
+RepoIntakeReport
+
+ต้องประกอบด้วย:
+
+repo name
+
+URL
+
+commit/hash
+
+license
+
+language/framework
+
+architecture
+
+dependencies
+
+main modules
+
+data pipeline
+
+model pipeline
+
+backtest pipeline
+
+execution pipeline
+
+reported results
+
+reproducibility level
+
+leakage risks
+
+live-vs-backtest gap
+
+reusable concepts
+
+unsafe concepts
+
+adaptation complexity
+
+integration recommendation
+
+Classification:
+KEEP
+REFERENCE_ONLY
+EXPERIMENTAL
+REJECT
+
+ขั้นตอน:
+
+Clone/inspect repo
+
+อ่าน README
+
+อ่าน project structure
+
+หา entry points
+
+หา data flow
+
+หา model/strategy flow
+
+หา backtest
+
+หา live execution
+
+ตรวจ license
+
+ตรวจ future leakage
+
+ตรวจ self-reported performance claims
+
+สรุปสิ่งที่ใช้ได้จริง
+
+Validation:
+
+ห้ามใช้ README อย่างเดียว
+
+ต้องตรวจ source
+
+ต้องระบุ commit
+
+ต้องแยก reported result กับ reproduced result
+
+Failure:
+
+repo inaccessible
+
+no license
+
+broken code
+
+insufficient source
+
+non-reproducible
+
+Artifact:
+repo_reports/<repo_name>.md
+
+Definition of Done:
+มี adaptation plan สำหรับ FT420 ชัดเจน
+
+ชื่อ:
+Market Data Audit
+
+จุดประสงค์:
+ตรวจความพร้อมของข้อมูลก่อนวิจัย
+
+Input:
+
+dataset
+
+symbol
+
+timeframe
+
+source
+
+date range
+
+Output:
+DataQualityReport
+
+ตรวจ:
+
+duplicates
+
+missing bars
+
+OHLC validity
+
+zero prices
+
+negative values
+
+spread anomalies
+
+timezone
+
+DST
+
+non-monotonic timestamp
+
+gaps
+
+session discontinuity
+
+broker anomalies
+
+ต้องคำนวณ:
+
+completeness %
+
+duplicate count
+
+missing count
+
+invalid OHLC count
+
+suspicious gap count
+
+spread distribution
+
+DataQualityScore
+
+DataQualityScore:
+0–100
+
+Policy:
+
+=95 PASS
+90–94 WARN
+<90 BLOCK
+
+ห้าม research ถ้า BLOCK
+
+ชื่อ:
+Strategy Logic Extractor
+
+จุดประสงค์:
+แยก logic จาก repo / EA / script
+ให้อยู่ในรูป FT420 Strategy Contract
+
+Input:
+
+source code
+
+strategy description
+
+repo report
+
+Output:
+StrategySpec
+
+ต้องแยก:
+
+market regime
+
+direction bias
+
+setup condition
+
+trigger
+
+confirmation
+
+stop logic
+
+TP logic
+
+invalidation
+
+time stop
+
+sizing
+
+session filter
+
+feature dependencies
+
+ห้าม:
+
+copy execution-specific code
+
+copy broker-specific hardcoding
+
+รวม risk/execution เข้ากับ alpha โดยไม่จำเป็น
+
+Output ตัวอย่าง:
+
+strategy_id: xau_breakout_v1
+family: breakout
+
+regime:
+volatility: expansion
+
+bias:
+ema_200: bullish
+
+trigger:
+donchian_breakout: true
+
+stop:
+atr: 1.2
+
+take_profit:
+rr: 2.0
+
+ชื่อ:
+Deterministic Baseline Builder
+
+หน้าที่:
+สร้าง baseline ที่เรียบง่ายและอธิบายได้
+
+Supported Families:
+
+Trend
+
+Breakout
+
+Mean Reversion
+
+Session
+
+Volatility
+
+Structure
+
+กฎ:
+หนึ่ง baseline = หนึ่ง hypothesis หลัก
+
+ห้ามใส่ filter 10 ตัวตั้งแต่แรก
+
+ตัวอย่าง:
+
+Trend Pullback V1:
+
+EMA200 bias
+
+EMA20 pullback
+
+bullish candle trigger
+
+ATR stop
+
+fixed R target
+
+ต้องสร้าง:
+
+implementation
+
+config
+
+tests
+
+experiment definition
+
+ชื่อ:
+Feature Factory
+
+หน้าที่:
+สร้าง feature ที่ใช้ซ้ำได้
+
+Feature categories:
+
+Technical
+Structure
+Volatility
+Momentum
+Session
+Price Action
+Liquidity
+Distance
+
+ทุก feature ต้องมี metadata:
+
+feature_id
+version
+lookback
+required_columns
+output_type
+warmup_bars
+future_safe
+unit
+
+ทุก feature ต้องมี future-safety test
+
+ตัวอย่าง:
+
+feature_id: dist_ema20_atr
+formula:
+(abs(close - ema20) / atr14)
+
+ห้ามใช้ current bar high/low
+ถ้า decision เกิดก่อน bar close
+
+ชื่อ:
+Market Regime Lab
+
+จุดประสงค์:
+จำแนกสภาพตลาดก่อนเลือก strategy
+
+V1 deterministic:
+
+TREND_UP
+TREND_DOWN
+RANGE
+VOLATILE
+COMPRESSION
+UNKNOWN
+
+Inputs:
+
+ADX
+
+EMA slope
+
+ATR percentile
+
+realized volatility
+
+structure
+
+V2:
+HMM
+
+ต้องเก็บ:
+
+regime label
+
+probability/confidence
+
+duration
+
+transition history
+
+ต้อง backtest:
+strategy performance by regime
+
+ชื่อ:
+ML Research Lab
+
+Models:
+
+Logistic Regression
+
+Random Forest
+
+XGBoost
+
+LightGBM
+
+optional Qlib models
+
+Input:
+FeatureMatrix
+TargetDefinition
+TemporalSplitConfig
+
+Output:
+ModelArtifact
+ModelMetrics
+
+บังคับ:
+
+temporal validation
+
+calibration
+
+feature importance
+
+threshold analysis
+
+ablation
+
+ห้าม:
+
+shuffled KFold
+
+leakage
+
+optimize threshold จาก final test
+
+Model ต้องแข่งกับ baseline
+
+ถ้า:
+ML strategy <= baseline after cost
+
+ให้ verdict:
+NO_VALUE_ADDED
+
+ชื่อ:
+Time Series Forecast Benchmark
+
+Framework:
+Darts
+
+โมเดล:
+
+naive
+
+linear
+
+ARIMA
+
+XGBoost
+
+N-BEATS
+
+N-HiTS
+
+TFT
+
+TCN
+
+Transformer
+
+Target:
+ไม่ควร forecast raw price อย่างเดียว
+
+ให้ทดลอง:
+
+future return
+
+future range
+
+future max up
+
+future max down
+
+realized volatility
+
+Outputs:
+forecast
+quantiles
+uncertainty
+direction probability
+
+จากนั้นแปลงเป็น feature
+
+ห้ามใช้ forecast model เป็น execution engine โดยตรง
+
+ชื่อ:
+Qlib Adapter
+
+หน้าที่:
+เชื่อม FT420 Dataset กับ Qlib
+
+ต้องแยก adapter ชัดเจน
+
+Input:
+FT420 canonical dataset
+
+Output:
+Qlib-compatible dataset
+Qlib predictions
+normalized FT420 ModelOutput
+
+ต้อง support:
+
+training
+
+prediction
+
+experiment logging
+
+artifact export
+
+ห้ามให้ core FT420 dependency กับ Qlib
+
+Qlib พัง
+FT420 Lab ต้องยังรัน baseline ได้
+
+ชื่อ:
+Experiment Runner
+
+หน้าที่:
+รัน experiment แบบ reproducible
+
+Input:
+ExperimentConfig
+
+ต้องสร้าง:
+experiment_hash
+
+hash จาก:
+
+data
+
+config
+
+feature set
+
+strategy
+
+model
+
+cost
+
+seed
+
+ถ้า hash ซ้ำ:
+ห้ามรันซ้ำ
+เว้นแต่ force=true
+
+สถานะ:
+PENDING
+RUNNING
+PASSED
+FAILED
+REJECTED
+ERROR
+
+ต้อง resume ได้
+
+Artifact folder:
+
+experiments/runs/<experiment_id>/
+
+ประกอบด้วย:
+config.yaml
+metrics.json
+trades.csv
+equity.csv
+logs.txt
+metadata.json
+
+ชื่อ:
+Walk Forward Validator
+
+หน้าที่:
+ตรวจ OOS stability
+
+Input:
+strategy/model
+dataset
+walk_forward_config
+
+ตัวอย่าง:
+Train 6 เดือน
+Validation 1 เดือน
+Test 1 เดือน
+
+ต้องรายงานทุก fold:
+
+train dates
+
+test dates
+
+trades
+
+PF
+
+AvgR
+
+DD
+
+win rate
+
+expectancy
+
+cost
+
+ต้องคำนวณ:
+
+positive_fold_ratio
+median_fold_pf
+median_fold_avgR
+worst_fold
+best_fold
+stability_score
+
+Failure:
+ถ้ากำไรเกิดจาก fold เดียวเป็นหลัก
+ให้ mark:
+UNSTABLE
+
+ชื่อ:
+Robustness Stress Lab
+
+ต้องรัน:
+
+Spread:
+1.0x
+1.25x
+1.5x
+2.0x
+
+Slippage:
+0
+low
+medium
+high
+
+Commission:
+base
+1.25x
+1.5x
+
+Latency ถ้ารองรับ
+
+Parameter perturbation:
+±5%
+±10%
+±20%
+
+ต้องคำนวณ:
+robustness_score
+
+Reject ถ้า:
+
+expectancy กลายเป็นลบเล็กน้อยทันที
+
+parameter เปลี่ยนนิดเดียวแล้วระบบพัง
+
+edge หายเมื่อ spread เพิ่มเล็กน้อย
+
+ชื่อ:
+Feature Ablation
+
+หน้าที่:
+ดูว่า edge มาจากอะไร
+
+ตัวอย่าง:
+
+Full:
+Trend + Volatility + SMC + Session + ML
+
+Experiment:
+
+no Trend
+
+no Volatility
+
+no SMC
+
+no Session
+
+no ML
+
+Output:
+
+component
+delta_PF
+delta_AvgR
+delta_DD
+delta_AUC
+delta_trade_count
+
+Classification:
+
+ESSENTIAL
+USEFUL
+NEUTRAL
+HARMFUL
+
+HARMFUL ต้องถูกเสนอให้ตัด
+
+ชื่อ:
+Strategy Forensics
+
+ใช้หลัง:
+
+strategy fail
+
+unexpected drawdown
+
+unusual OOS behavior
+
+วิเคราะห์:
+
+MAE
+MFE
+holding time
+entry timing
+session
+regime
+spread
+volatility
+direction
+loss clusters
+
+ต้องสร้าง:
+
+Failure Map
+
+เช่น:
+
+Loss Cluster:
+London Open
+High volatility
+Long trades
+Entry after extension
+Stop < 0.8 ATR
+
+จากนั้นสร้าง:
+Hypothesis
+
+ไม่แก้ strategy โดยตรง
+
+ชื่อ:
+Candidate Ranking Engine
+
+ห้าม rank จาก Net Profit อย่างเดียว
+
+Composite Score:
+
+OOS Expectancy
+Walk Forward Stability
+Cost Robustness
+Parameter Robustness
+Drawdown Efficiency
+Sample Quality
+
+Penalty:
+
+Low trades
+High DD
+Fragility
+Single-year dependency
+One-direction dependency
+One-session dependency
+
+Output:
+
+rank
+candidate_id
+score
+verdict
+
+Verdict:
+
+REJECT
+RESEARCH_MORE
+INCUBATE
+PROMOTION_CANDIDATE
+
+ชื่อ:
+Strategy Promotion Gate
+
+Candidate ต้องผ่าน:
+
+Data Quality
+Leakage Check
+Minimum Trades
+Walk Forward
+Stress
+Sensitivity
+Cost
+Ablation
+Robustness
+
+Promotion decisions:
+
+REJECTED
+INCUBATING
+PROMOTED
+LIVE_FORWARD
+
+เมื่อ PROMOTED:
+
+freeze:
+
+strategy version
+
+parameters
+
+feature versions
+
+model artifact
+
+symbol list
+
+timeframe list
+
+validation result
+
+code hash
+
+Export:
+
+strategy_registry/<strategy_id>/<version>/
+
+ห้าม live runtime อ่านไฟล์ทดลอง
+
+ชื่อ:
+Experimental RL Lab
+
+default:
+enabled=false
+
+ใช้เฉพาะ:
+
+HOLD
+
+EXIT
+
+Position Management
+
+sizing experiments
+
+ห้ามเริ่มจาก BUY/SELL agent
+
+Algorithms:
+
+PPO
+
+A2C
+
+SAC
+
+optional FinRL
+
+บังคับ:
+multi-seed
+walk-forward
+OOS
+cost stress
+
+ถ้า training reward ดี
+แต่ OOS ไม่ดี
+
+REJECT
+
+Research Director:
+
+repo_intake
+
+candidate_ranker
+
+strategy_promoter
+
+Repo Analyst:
+
+repo_intake
+
+strategy_extract
+
+Data Engineer:
+
+data_audit
+
+feature_factory
+
+Quant Researcher:
+
+baseline_builder
+
+regime_lab
+
+experiment_runner
+
+ML Researcher:
+
+feature_factory
+
+ml_lab
+
+qlib_adapter
+
+timeseries_benchmark
+
+Validation Agent:
+
+walk_forward
+
+stress_test
+
+ablation
+
+Forensic Agent:
+
+forensic_analysis
+
+Release Agent:
+
+strategy_promoter
+
+Agent ทุกตัวต้อง:
+
+อ่าน LAB_RULES.md
+
+อ่าน SKILL ที่เกี่ยวข้อง
+
+ตรวจ input
+
+ทำงาน
+
+validation
+
+tests
+
+บันทึก artifact
+
+return structured result
+
+ห้ามข้าม Skill validation
+
+ทุกครั้งที่ Skill ทำงาน
+ให้บันทึก:
+
+skill
+version
+agent
+start_time
+end_time
+input_hash
+output_hash
+status
+artifacts
+errors
+
+เก็บใน:
+
+logs/skill_runs.jsonl
+
+หลังจาก Skill System ผ่านแล้ว
+ให้สร้าง Research Autopilot
+
+Autopilot loop:
+
+Research Director
+↓
+ดู Leaderboard
+↓
+ดู Failures
+↓
+Forensic Analysis
+↓
+สร้าง Hypothesis
+↓
+เลือก Skill
+↓
+สร้าง Candidate
+↓
+Experiment
+↓
+Walk Forward
+↓
+Stress
+↓
+Rank
+↓
+Reject / Incubate / Promote
+↓
+วนใหม่
+
+ต้องมี:
+
+max_experiments_per_run
+max_candidates_per_family
+max_compute_time
+max_model_complexity
+max_parameter_search
+
+ห้าม brute-force แบบไม่มีขอบเขต
+
+ห้าม optimize final test set
+
+สร้าง:
+
+research_memory/
+
+ประกอบด้วย:
+
+successful_patterns.json
+failed_patterns.json
+known_leakage_patterns.json
+fragile_parameters.json
+regime_findings.json
+feature_findings.json
+
+เป้าหมาย:
+
+Agent ต้องไม่ทำ experiment กากซ้ำๆ
+
+ตัวอย่าง:
+
+failed_patterns:
+
+{
+"rule": "RSI oversold alone",
+"symbol": "XAUUSD",
+"result": "negative after cost",
+"confidence": "high"
+}
+
+เมื่อ candidate ใหม่ใช้ pattern เดิม
+ให้เตือนก่อนรัน
+
+Forensic Agent สามารถสร้าง hypothesis:
+
+ตัวอย่าง:
+
+Observation:
+Trend Pullback แพ้หนักช่วง volatility expansion
+
+Hypothesis:
+ATR-normalized entry distance อาจลด late entry
+
+Experiment:
+Baseline
+vs
+ATR-normalized distance
+
+ต้องเป็น testable hypothesis เท่านั้น
+
+ห้าม:
+"เพิ่ม indicator แล้วลองดู"
+
+ให้ strategy candidate มี DNA format:
+
+Regime
+Bias
+Setup
+Trigger
+Confirmation
+Stop
+Target
+Time Exit
+Risk
+
+ตัวอย่าง:
+
+DNA:
+Regime = TREND_UP
+Bias = EMA200
+Setup = pullback_to_ema20
+Trigger = bullish_rejection
+Confirmation = XGBoost > 0.65
+Stop = ATR 1.3
+Target = 2R
+TimeExit = 24 bars
+
+ทำให้สามารถ:
+
+compare
+
+mutate
+
+ablate
+
+rank
+
+ได้ง่าย
+
+เมื่อ strategy ใกล้ผ่าน
+สามารถสร้างลูก:
+
+Parent:
+candidate_004
+
+Mutations:
+
+stop:
+1.1 ATR
+1.3 ATR
+1.5 ATR
+
+confirmation:
+0.60
+0.65
+0.70
+
+แต่ mutation ต้องจำกัด
+
+ห้าม exhaustive grid search
+
+ใช้:
+bounded local search
+
+Leaderboard ต้องไม่เต็มไปด้วย
+strategy family เดียว
+
+ต้อง track:
+
+Trend
+Breakout
+Mean Reversion
+Volatility
+Liquidity
+Session
+ML Hybrid
+
+เป้าหมาย:
+ค้นหา edge ที่ต่างกัน
+
+ไม่ใช่สร้าง clone 50 ตัว
+
+ก่อน Promote หลายระบบ
+
+ตรวจ:
+
+signal correlation
+
+return correlation
+
+drawdown overlap
+
+same regime dependency
+
+ถ้าสอง strategy เหมือนกันเกินไป
+ให้พิจารณาเลือกตัวเดียว
+
+หลัง strategy หลายตัวผ่าน
+
+ค่อยสร้าง:
+
+skills/portfolio_lab/
+
+หน้าที่:
+
+strategy allocation
+
+risk budget
+
+correlation-aware sizing
+
+regime allocation
+
+ห้ามเริ่มก่อนมี strategy
+อย่างน้อย 3 ตัวที่ผ่าน OOS จริง
+
+ถือว่า Phase นี้เสร็จเมื่อ:
+
+[ ] มี Skill folders ครบ
+[ ] ทุก Skill มี SKILL.md
+[ ] ทุก Skill มี input/output schema
+[ ] ทุก Skill มี tests
+[ ] Agent mapping เสร็จ
+[ ] Skill logs ทำงาน
+[ ] Experiment runner เรียก skill ได้
+[ ] Research memory ทำงาน
+[ ] Candidate DNA ทำงาน
+[ ] Candidate ranker ทำงาน
+[ ] Promotion gate ทำงาน
+[ ] Autopilot dry-run ทำงาน
+[ ] ไม่มี final-test leakage
+[ ] Documentation ครบ
+
+หลังเสร็จให้สร้าง:
+
+SKILL_SYSTEM_REPORT.md
+
+และ
+
+AUTOPILOT_READINESS_REPORT.md
